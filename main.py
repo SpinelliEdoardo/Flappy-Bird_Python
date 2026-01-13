@@ -27,23 +27,32 @@ class tubi_classe:
     def __init__(self):
         self.x = 300
         self.y = random.randint(-75, 150)
+        self.punto_fatto = False
     def avanza_e_disegna(self):
         self.x -= VEL_AVANZ
         SCHERMO.blit(tubo_giu, (self.x, self.y + 210))
         SCHERMO.blit(tubo_su, (self.x, self.y - 210))
     def collisione(self, uccello, uccellox, uccelloy):
         tolleranza = 5
-        # Controllo collisione con i tubi
         uccello_lato_dx = uccellox + uccello.get_width() - tolleranza
         uccello_lato_sx = uccellox + tolleranza
-        tubi_lato_dx = self.x
-        tubi_lato_sx = self.x + tubo_giu.get_width()
         uccello_lato_su = uccelloy + tolleranza
         uccello_lato_giu = uccelloy + uccello.get_height() - tolleranza
-        tubi_lato_su = self.y + 110
-        tubi_lato_giu = self.y + 210
-        if uccello_lato_dx > tubi_lato_sx and uccello_lato_sx < tubi_lato_dx:
-            if uccello_lato_su < tubi_lato_su or uccello_lato_giu > tubi_lato_giu:
+
+        # lati tubi
+        tubo_su_lato_sx = self.x + tubo_su.get_width()
+        tubo_su_lato_dx = self.x
+
+        if uccello_lato_dx > tubo_su_lato_dx and uccello_lato_sx < tubo_su_lato_sx:
+
+            # Tubo superiore 
+            tubo_su_lato_giu = (self.y - 210) + tubo_su.get_height()
+            if uccello_lato_su < tubo_su_lato_giu:
+                hai_perso()
+
+            # Tubo inferiore
+            tubo_giu_lato_su = self.y + 210
+            if uccello_lato_giu > tubo_giu_lato_su:
                 hai_perso()
     def fra_i_tubi(self, uccello, uccellox):
         tolleranza = 5
@@ -121,20 +130,9 @@ while True:
     # Aggiunta nuovi tubi
     if tubi [-1].x < 150: tubi.append(tubi_classe())
     for t in tubi:
-        t.collisione(uccello, uccellox, uccelloy)
-    if not fra_i_tubi:
-        for t in tubi:
-            if t.fra_i_tubi(uccello, uccellox):
-                fra_i_tubi = True
-                break
-    if fra_i_tubi:
-        fra_i_tubi = False
-        for t in tubi:
-            if t.fra_i_tubi(uccello, uccellox):
-                fra_i_tubi = True
-                break
-        if not fra_i_tubi:
+        if not t.punto_fatto and uccellox > t.x + tubo_giu.get_width():
             punti += 1
+            t.punto_fatto = True
     # Controllo collisione con la Base 
     if uccelloy > 380:
         hai_perso()
